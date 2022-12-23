@@ -29,7 +29,7 @@ services:
 
   product-service:
     restart: unless-stopped
-    build: Dockerfile
+    build: ./
     container_name: product
     environment:
       - SERVER_PORT=${SERVER_PORT}
@@ -43,8 +43,6 @@ services:
       - redis-service
     ports:
       - "${API_PORT}:${SERVER_PORT}"
-    volumes:
-      - ./:/app
 
 volumes:
   redis_data:

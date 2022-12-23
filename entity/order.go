@@ -4,8 +4,8 @@ import (
 	"time"
 )
 
-// Todo ...
-type Todo struct {
+// Order ...
+type Order struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`

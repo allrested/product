@@ -1,49 +1,36 @@
-version: "3"
-
-# optional ports are specified throughout for more advanced use cases.
-
+version: '3.7'
 services:
+  order_app:
+    container_name: order-grpc
+    build: .
+    restart: on-failure
+    volumes:
+      - ./:/app/
+    networks:
+      - echo-stack
+    ports:
+      - 3000:3000
+      - 50051:50051
+      - 50052:50052
+      - 50053:50053
+    depends_on:
+      - postgres-service
   postgres-service:
     image: postgres
     restart: always
-    container_name: ${DB_HOST}
+    container_name: pgsql
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${INIT_DB}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=product_svc
     ports:
-      - "${DB_PORT}:5432"
+      - "5432:5432"
     healthcheck:
         test: ["CMD-SHELL", "pg_isready -U postgres"]
         interval: 5s
         timeout: 5s
         retries: 5
 
-  redis-service:
-    restart: unless-stopped
-    image: redis
-    container_name: product_redis
-    command: redis-server
-    volumes:
-      - redis_data:/data
-
-  product-service:
-    restart: unless-stopped
-    build: ./
-    container_name: product
-    environment:
-      - SERVER_PORT=${SERVER_PORT}
-      - DATABASE_URL=${DATABASE_URL}
-      - CACHE_URL=${CACHE_URL}
-      - LOGGER_LEVEL=${LOGGER_LEVEL}
-      - CONTEXT_TIMEOUT=${CONTEXT_TIMEOUT}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-    depends_on:
-      - postgres-service
-      - redis-service
-    ports:
-      - "${API_PORT}:${SERVER_PORT}"
-
-volumes:
-  redis_data:
-    driver: local
+networks:
+  echo-stack:
+    driver: bridge
